@@ -1,0 +1,82 @@
+FIRST ONE CORRECTED
+import numpy as np
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv("/content/HousingData.csv")
+
+# Remove missing values
+df = df.dropna()
+
+# Features and target
+X = df.drop("MEDV", axis=1)
+y = df["MEDV"]
+
+# Train test split
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+# Feature scaling
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Build Neural Network
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Input
+
+model = Sequential()
+
+model.add(Input(shape=(13,)))
+
+model.add(Dense(128, activation='relu'))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(1))
+
+# Compile model
+model.compile(
+    optimizer='adam',
+    loss='mse',
+    metrics=['mae']
+)
+
+# Train model
+model.fit(
+    X_train,
+    y_train,
+    epochs=20,
+    batch_size=16
+)
+
+# Predictions
+y_predict = model.predict(X_test)
+
+# Convert predictions to 1D array
+y_predict = y_predict.flatten()
+
+# Evaluation
+from sklearn.metrics import (
+    mean_squared_error,
+    mean_absolute_error,
+    r2_score
+)
+
+mse = mean_squared_error(y_test, y_predict)
+rmse = np.sqrt(mse)
+mae = mean_absolute_error(y_test, y_predict)
+r2 = r2_score(y_test, y_predict)
+
+# Print results
+print(f"Mean Absolute Error (MAE): {mae}")
+print(f"Mean Squared Error (MSE): {mse}")
+print(f"Root Mean Squared Error (RMSE): {rmse}")
+print(f"R2 Score: {r2}")
